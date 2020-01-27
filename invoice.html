@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>A simple, clean, and responsive HTML invoice template</title>
+    <title>The Crescendos - {{type | upper}}</title>
 
     <style>
     .invoice-box {
@@ -11,13 +11,16 @@
         padding: 30px;
         border: 1px solid #eee;
         box-shadow: 0 0 10px rgba(0, 0, 0, .15);
-        font-size: 16px;
+        /*font-size: 16px;*/
+        font-size: 18px;
         line-height: 24px;
-        font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+        /*font-family: 'San Francisco';*/
+        font-family: 'Garamond', 'Times New Roman';
+        /*font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;*/
         color: #555;
     }
 
-    .invoice-box table {
+    .invoice-box > table {
         width: 100%;
         line-height: inherit;
         text-align: left;
@@ -29,6 +32,10 @@
     }
 
     .invoice-box table tr td:nth-child(2) {
+        /*text-align: right;*/
+    }
+
+    .invoice-box table tr td.price:nth-child(2) {
         text-align: right;
     }
 
@@ -42,7 +49,7 @@
         color: #333;
     }
 
-    .invoice-box table tr.information table td {
+    .invoice-box table tr.information > td {
         padding-bottom: 40px;
     }
 
@@ -50,6 +57,7 @@
         background: #eee;
         border-bottom: 1px solid #ddd;
         font-weight: bold;
+        /*padding-top: 40px;*/
     }
 
     .invoice-box table tr.details td {
@@ -58,6 +66,7 @@
 
     .invoice-box table tr.item td{
         border-bottom: 1px solid #eee;
+        width: 70%;
     }
 
     .invoice-box table tr.item.last td {
@@ -69,7 +78,19 @@
         font-weight: bold;
     }
 
-    @media only screen and (max-width: 600px) {
+    .invoice-box table.mini td {
+        padding: 0px;
+        /*text-align: left;*/
+        /*width: 0%;*/
+    }
+
+    .invoice-box table.mini tr td:nth-child(1) {
+        font-weight: bold;
+        padding-right: 10px;
+    }
+
+
+/*    @media only screen and (max-width: 600px) {
         .invoice-box table tr.top table td {
             width: 100%;
             display: block;
@@ -81,10 +102,10 @@
             display: block;
             text-align: center;
         }
-    }
+    }*/
 
     /** RTL **/
-    .rtl {
+/*    .rtl {
         direction: rtl;
         font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
     }
@@ -96,6 +117,7 @@
     .rtl table tr td:nth-child(2) {
         text-align: left;
     }
+*/
     </style>
 </head>
 
@@ -107,13 +129,11 @@
                     <table>
                         <tr>
                             <td class="title">
-                                <img src="https://www.sparksuite.com/images/logo.png" style="width:100%; max-width:300px;">
+                                <img src="file:///Users/darius/python/crescendos/invoicing/crescendos-logo.png" style="width:100%; min-width: 200px; max-width:300px;">
                             </td>
 
-                            <td>
-                                Invoice #: 123<br>
-                                Created: January 1, 2015<br>
-                                Due: February 1, 2015
+                            <td style="text-align: right; width: 100%;">
+                                <b>{{type | upper}}</b>
                             </td>
                         </tr>
                     </table>
@@ -122,41 +142,40 @@
 
             <tr class="information">
                 <td colspan="2">
-                    <table>
+                    <table style="width: 100%;">
                         <tr>
                             <td>
-                                Sparksuite, Inc.<br>
-                                12345 Sunny Road<br>
-                                Sunnyville, CA 12345
+                                {{ their_address | replace("\n", "<br/>") }}
                             </td>
-
-                            <td>
-                                Acme Corp.<br>
-                                John Doe<br>
-                                john@example.com
+                            <td style="float: right;">
+                                <table class="mini">
+                                    <tr>
+                                        <!-- <td> -->
+                                            <!-- {{ their_details | replace("\n", "<br/>") }} -->
+                                            <!-- <b>Invoice no.</b>: {{invoice}}<br> -->
+                                        <!-- </td> -->
+                                        <td>{{type | title}} no.:</td>
+                                        <td>{{id}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{type | title}} date:</td>
+                                        <td>{{date_created}}</td>
+                                    </tr>
+                                            <!-- <b>Date</b>: {{date_created}}<br> -->
+                                </table>
                             </td>
                         </tr>
                     </table>
-                </td>
-            </tr>
-
-            <tr class="heading">
-                <td>
-                    Payment Method
-                </td>
-
-                <td>
-                    Check #
-                </td>
-            </tr>
-
-            <tr class="details">
-                <td>
-                    Check
-                </td>
-
-                <td>
-                    1000
+                    <table class="mini">
+                        {% for key, value in their_details.items() %}
+                        <tr>
+                            <td>{{key}}:</td>
+                            <td>{{value}}</td>
+                        </tr>
+                        {% endfor %}
+                    <!-- <tr><td>Order no.:</td><td>SSI0193938</td></tr> -->
+                    <!-- <tr><td>PR no.:</td><td>0000064363</td></tr> -->
+                    </table>
                 </td>
             </tr>
 
@@ -170,44 +189,34 @@
                 </td>
             </tr>
 
-            <tr class="item">
-                <td>
-                    Website design
-                </td>
-
-                <td>
-                    $300.00
-                </td>
+            {% for item in items %}
+            <tr class="item {% if loop.last %}last{% endif %}">
+                <td>{{ item['thing'] }}</td>
+                <td class="price">{{ "${:,.2f}".format(item['cost']) }}</td>
             </tr>
-
-            <tr class="item">
-                <td>
-                    Hosting (3 months)
-                </td>
-
-                <td>
-                    $75.00
-                </td>
-            </tr>
-
-            <tr class="item last">
-                <td>
-                    Domain name (1 year)
-                </td>
-
-                <td>
-                    $10.00
-                </td>
-            </tr>
+            {% endfor %}
 
             <tr class="total">
                 <td></td>
 
-                <td>
-                   Total: $385.00
+                <td class="price">
+                   {{ "${:,.2f}".format(items | sum(attribute='cost')) }}
                 </td>
             </tr>
         </table>
+
+        {% if type == 'invoice' %}
+
+        <p>Please pay the sum of <b>SINGAPORE DOLLARS {{total_text}} ONLY</b> within 30 days of the date of this invoice.</p>
+        <p>If paying by cheque, please make payable to:</p>
+        <p><b>The Crescendos</b><br/>
+        60 Paya Lebar Road, #10-20 Paya Lebar Square<br/>
+        Singapore 409051</p>
+        <p>If paying through Bank Transfer, please credit into:</p>
+        <p><b>OCBC Business Account 713091346001</b></p>
+        <p>This is a computer-generated invoice. No signature is required.</p>
+
+        {% endif %}
     </div>
 </body>
 </html>
